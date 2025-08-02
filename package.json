@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npm run copy-obsidian && next build",
+    "copy-obsidian": "node scripts/copy-obsidian-content.js",
+    "dev:obsidian": "npm run copy-obsidian && npm run dev",
     "start": "next start",
     "lint": "next lint",
     "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind"

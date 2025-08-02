@@ -1,141 +1,75 @@
-# Fresh Nextra 4 Documentation Site
+# Nextra Documentation Site
 
-A modern documentation site built with **Nextra 4** and **Next.js 15** from scratch.
+Modern documentation site built with Nextra 4 and Next.js 15, featuring Obsidian integration for content management.
 
-## 🚀 Features
+## Features
 
-- ✅ **Nextra 4** - Latest version with App Router support
-- ✅ **Next.js 15** - App Router with server components
-- ✅ **Turbopack** - Faster development builds
-- ✅ **Pagefind** - Rust-powered search engine
-- ✅ **TypeScript** - Full type safety
-- ✅ **GitHub Alerts** - Automatic callout conversion
-- ✅ **No legacy code** - Fresh start, no backward compatibility
+- **Nextra 4** with Next.js 15 App Router
+- **Obsidian Integration** - Author content in Obsidian, auto-sync to Nextra
+- **Auto-generated Navigation** - `_meta.js` files generated from file metadata
+- **Search with Pagefind** - Full-text search capability
+- **TypeScript Support** - Type-safe development
 
-## 🛠 Tech Stack
+## Content Workflow
 
-- **Framework**: Next.js 15 (App Router)
-- **Static Site Generator**: Nextra 4
-- **Styling**: Tailwind CSS (via Nextra theme)
-- **Search**: Pagefind
-- **Development**: Turbopack
-- **Language**: TypeScript
+1. **Author in Obsidian**: Write content in `obsidian/` directory using markdown files
+2. **Add Metadata**: Use mini blocks at the top of each file:
 
-## 📦 Installation
+   ```markdown
+   <!-- meta:page-key -->
+   <!-- meta:Page Title for Navigation -->
 
-```bash
-# Install dependencies
-npm install
+   # Your Content Here
+   ```
 
-# Start development server with Turbopack
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-```
-
-## 📁 Project Structure
-
-```
-├── app/
-│   ├── layout.tsx              # Root layout with Nextra theme
-│   └── [[...mdxPath]]/
-│       └── page.jsx            # Catch-all route for MDX content
-├── content/
-│   ├── _meta.js               # Navigation configuration
-│   ├── index.mdx              # Homepage
-│   ├── installation.mdx       # Installation guide
-│   ├── configuration.mdx      # Configuration guide
-│   └── deployment.mdx         # Deployment guide
-├── mdx-components.tsx         # Global MDX components
-├── next.config.mjs           # Nextra configuration
-└── package.json
-```
-
-## 🎯 Key Differences from Nextra 3
-
-- **App Router**: Uses Next.js 15 App Router instead of Pages Router
-- **No theme.config**: Configuration moved to layout components
-- **Server Components**: Better performance with RSC
-- **Pagefind Search**: Rust-powered search instead of FlexSearch
-- **Turbopack Support**: Faster development experience
-- **Modern Setup**: No legacy dependencies or configurations
-
-## 📖 Documentation
-
-- **Getting Started**: `/` - Introduction and overview
-- **Installation**: `/installation` - Setup guide
-- **Configuration**: `/configuration` - Customization options
-- **Deployment**: `/deployment` - Production deployment
-
-## 🔍 Search
-
-This project includes Pagefind for powerful search functionality:
-
-- Indexes all content automatically
-- Works with dynamic content
-- Fast Rust-powered search
-- No client-side indexes needed
-
-## 🚀 Deployment
-
-### Static Export
+3. **Auto-sync**: Run build to copy content and generate navigation## Commands
 
 ```bash
-npm run build
-# Outputs to `out/` directory
+# Development
+npm run dev                 # Start Nextra dev server
+npm run dev:obsidian       # Copy content and start dev server
+
+# Building
+npm run build              # Copy content and build for production
+npm run copy-obsidian      # Manual content sync from obsidian/
+
+# Search
+npm run build:search       # Build Pagefind search index
 ```
 
-### Vercel (Recommended)
+## Project Structure
 
-```bash
-npx vercel
+```
+obsidian/          # Source content (author here)
+├── index.mdx      # Homepage
+├── getting-started.mdx
+└── configuration.mdx
+
+content/           # Auto-generated (don't edit directly)
+├── _meta.js       # Generated navigation
+├── index.mdx      # Copied from obsidian/
+└── ...
+
+app/               # Next.js App Router
+├── layout.tsx     # Root layout
+└── [[...mdxPath]]/
+    └── page.jsx   # Dynamic MDX page renderer
 ```
 
-### Other Platforms
+## Metadata Format
 
-The site can be deployed to any static hosting platform:
+Each Obsidian file should start with metadata comments:
 
-- Netlify
-- GitHub Pages
-- Cloudflare Pages
-- AWS S3 + CloudFront
+```markdown
+<!-- meta:getting-started -->
+<!-- meta:Getting Started -->
 
-## 📝 Development
+# Getting Started
 
-### Add New Pages
+Your content here...
+```
 
-1. Create a new `.mdx` file in the `content/` directory
-2. Update `content/_meta.js` to include the new page
-3. The page will automatically appear in navigation
+- **Line 1**: Page key (used in URLs and `_meta.js`)
+- **Line 2**: Display title (shown in navigation)
 
-### Customize Theme
-
-Edit `app/layout.tsx` to customize:
-
-- Colors and styling
-- Navigation
-- Footer
-- Search configuration
-
-### Add Components
-
-Add custom MDX components in `mdx-components.tsx`.
-
-## 🔧 Scripts
-
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-
-## 📄 License
-
-MIT License - see LICENSE file for details.
-
----
-
-Built with ❤️ using Nextra 4 and Next.js 15
+Files without metadata will use filename-based defaults.

@@ -32,3 +32,7 @@ logs
 _pagefind/
 public/_pagefind/
 out/_pagefind/
+
+# Auto-generated content (copied from obsidian/)
+# The source of truth is in obsidian/ folder
+content/
