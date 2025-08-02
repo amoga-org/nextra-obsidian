@@ -1,0 +1,236 @@
+# Configuration
+
+Learn how to customize your Nextra 4 documentation site.
+
+## Basic Configuration
+
+### Next.js Configuration
+
+Configure Nextra in your `next.config.mjs`:
+
+```javascript filename="next.config.mjs"
+import nextra from "nextra";
+
+const withNextra = nextra({
+  // Content directory convention (default)
+  // contentDirBasePath: '/docs' // Optional: serve content from different path
+});
+
+export default withNextra({
+  // Next.js configuration
+  output: "export", // For static export
+  trailingSlash: true,
+  images: {
+    unoptimized: true, // For static export
+  },
+});
+```
+
+### Layout Configuration
+
+Customize your site in `app/layout.tsx`:
+
+```tsx filename="app/layout.tsx"
+import { Footer, Layout, Navbar } from "nextra-theme-docs";
+import { Banner, Head, Search } from "nextra/components";
+import { getPageMap } from "nextra/page-map";
+
+export default async function RootLayout({ children }) {
+  return (
+    <html lang="en" dir="ltr">
+      <Head
+        backgroundColor={{
+          dark: "rgb(15, 23, 42)",
+          light: "rgb(254, 252, 232)",
+        }}
+      />
+      <body>
+        <Layout
+          navbar={<Navbar logo={<strong>My Docs</strong>} />}
+          pageMap={await getPageMap()}
+          // ... other configuration
+        >
+          {children}
+        </Layout>
+      </body>
+    </html>
+  );
+}
+```
+
+## Navigation
+
+### Meta Files
+
+Configure navigation using `_meta.js` files:
+
+```javascript filename="content/_meta.js"
+export default {
+  index: "Home",
+  "getting-started": "Getting Started",
+  guide: {
+    title: "Guide",
+    type: "page",
+  },
+  about: {
+    title: "About",
+    href: "/about",
+  },
+  contact: {
+    title: "Contact ↗",
+    href: "https://example.com",
+    newWindow: true,
+  },
+};
+```
+
+### Global Meta Configuration
+
+Use `_meta.global.js` for centralized navigation:
+
+```javascript filename="content/_meta.global.js"
+export default {
+  docs: {
+    type: "page",
+    title: "Documentation",
+    items: {
+      index: "Getting Started",
+      installation: "Installation",
+    },
+  },
+  blog: {
+    type: "page",
+    title: "Blog",
+  },
+};
+```
+
+## Search Configuration
+
+### Pagefind Setup
+
+1. Install Pagefind:
+
+```bash npm2yarn
+npm install -D pagefind
+```
+
+2. Add postbuild script:
+
+```json filename="package.json"
+{
+  "scripts": {
+    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind"
+  }
+}
+```
+
+3. Add to `.gitignore`:
+
+```gitignore filename=".gitignore"
+_pagefind/
+```
+
+### Search Component
+
+Include search in your layout:
+
+```tsx
+import { Search } from 'nextra/components'
+
+<Layout
+  search={
+    <Search
+      placeholder="Search documentation..."
+      emptyResult="No results found."
+    />
+  }
+>
+```
+
+## Theme Customization
+
+### Colors and Styling
+
+Customize theme colors:
+
+```tsx filename="app/layout.tsx"
+<Head
+  backgroundColor={{
+    dark: "rgb(15, 23, 42)",
+    light: "rgb(254, 252, 232)",
+  }}
+  color={{
+    hue: { dark: 120, light: 0 },
+    saturation: { dark: 100, light: 100 },
+  }}
+/>
+```
+
+### Custom Components
+
+Add custom MDX components:
+
+```tsx filename="mdx-components.tsx"
+import { useMDXComponents as getDocsMDXComponents } from "nextra-theme-docs";
+
+const docsComponents = getDocsMDXComponents();
+
+export function useMDXComponents(components) {
+  return {
+    ...docsComponents,
+    MyCustomComponent: ({ children }) => (
+      <div className="my-custom-class">{children}</div>
+    ),
+    ...components,
+  };
+}
+```
+
+## Advanced Configuration
+
+### Turbopack Support
+
+Enable Turbopack for faster development:
+
+```json filename="package.json"
+{
+  "scripts": {
+    "dev": "next dev --turbopack"
+  }
+}
+```
+
+> [!WARNING]
+> Turbopack doesn't support custom remark/rehype plugins yet.
+
+### Static Export
+
+For static hosting:
+
+```javascript filename="next.config.mjs"
+export default withNextra({
+  output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+});
+```
+
+## TypeScript Configuration
+
+Update `tsconfig.json` for Nextra 4:
+
+```json filename="tsconfig.json"
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "module": "esnext"
+  }
+}
+```
+
+---
+
+Next: Learn how to [deploy](/deployment) your Nextra 4 site.
