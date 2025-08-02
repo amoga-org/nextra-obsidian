@@ -2,6 +2,8 @@
 
 Modern documentation site built with Nextra 4 and Next.js 15, featuring Obsidian integration for content management.
 
+Write content in Obsidian, run `npm run build` and your Nextra Project output is ready to be uploaded to any static Site.
+
 ## Features
 
 - **Nextra 4** with Next.js 15 App Router
