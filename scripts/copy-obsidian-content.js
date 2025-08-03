@@ -6,6 +6,21 @@ const path = require("path");
 
 const OBSIDIAN_PATH = path.join(process.cwd(), "obsidian");
 const CONTENT_PATH = path.join(process.cwd(), "content");
+const PUBLIC_PATH = path.join(process.cwd(), "public");
+
+/**
+ * Convert filename to URL-safe format
+ */
+function toUrlSafeKey(filename) {
+  const baseName = path.basename(filename, path.extname(filename));
+  if (baseName === "index") return "index";
+
+  // Convert spaces to hyphens and make lowercase for URL safety
+  return baseName
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, ""); // Remove any non-word characters except hyphens
+}
 
 /**
  * Extract metadata from the first two lines of a markdown file
@@ -30,12 +45,12 @@ function extractMetadata(content, fileName) {
 
   // Fallback to filename
   const baseName = path.basename(fileName, path.extname(fileName));
-  const key = baseName === "index" ? "index" : baseName;
+  const key = toUrlSafeKey(fileName);
   const title =
     baseName === "index"
       ? "Home"
       : baseName
-          .split("-")
+          .split(/[-_\s]+/)
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" ");
 
@@ -106,15 +121,39 @@ async function copyDirectory(src, dest) {
       );
     }
 
-    // Copy markdown files
+    // Copy markdown files and images
     for (const entry of files) {
       const srcPath = path.join(src, entry.name);
-      const destPath = path.join(dest, entry.name);
 
       const ext = path.extname(entry.name).toLowerCase();
       if ([".md", ".mdx"].includes(ext)) {
-        console.log(`📄 Copying file: ${entry.name}`);
+        // Generate URL-safe filename for content files
+        const urlSafeKey = toUrlSafeKey(entry.name);
+        const newFileName = urlSafeKey + ext;
+        const destPath = path.join(dest, newFileName);
+
+        console.log(`📄 Copying file: ${entry.name} -> ${newFileName}`);
         await fs.copyFile(srcPath, destPath);
+      } else if (
+        [
+          ".png",
+          ".jpg",
+          ".jpeg",
+          ".gif",
+          ".svg",
+          ".webp",
+          ".bmp",
+          ".ico",
+        ].includes(ext)
+      ) {
+        // Copy images to public directory
+        const publicDestPath = path.join(
+          PUBLIC_PATH,
+          path.relative(OBSIDIAN_PATH, srcPath)
+        );
+        await fs.mkdir(path.dirname(publicDestPath), { recursive: true });
+        console.log(`🖼️  Copying image: ${entry.name} to public/`);
+        await fs.copyFile(srcPath, publicDestPath);
       } else {
         console.log(`⏭️  Skipping file: ${entry.name} (unsupported extension)`);
       }
@@ -187,6 +226,19 @@ async function processMarkdownFile(filePath) {
     ) {
       content = lines.slice(2).join("\n").trim();
     }
+
+    // Convert Obsidian wiki-link syntax to standard markdown for images
+    // ![[image.png]] -> ![](image.png)
+    // ![[image.png|alt text]] -> ![alt text](image.png)
+    content = content.replace(
+      /!\[\[([^|\]]+)(?:\|([^\]]+))?\]\]/g,
+      (match, imagePath, altText) => {
+        const alt = altText || "";
+        // Convert the path to be relative to the public directory
+        const publicPath = "/" + imagePath;
+        return `![${alt}](${publicPath})`;
+      }
+    );
 
     // Convert .md files to .mdx
     if (path.extname(filePath) === ".md") {
